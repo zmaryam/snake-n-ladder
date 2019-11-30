@@ -1,0 +1,19 @@
+//Zaneera Maryam
+import java.awt.Point;
+
+public class Player {
+	private int scores;
+	private Point playerPieceLocation;
+	
+	public Player(){
+		scores=0;
+		playerPieceLocation=new Point(15,433);
+	}
+	public Point getLocation(){
+		return playerPieceLocation;
+	}
+	public void setLocation(Point p){
+		playerPieceLocation=p;
+	}
+
+}
