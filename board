@@ -1,19 +1,206 @@
 //Zaneera Maryam
-import java.awt.Point;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 
-public class Player {
-	private int scores;
-	private Point playerPieceLocation;
+public class Board extends MouseInputAdapter implements ActionListener{
 	
-	public Player(){
-		scores=0;
-		playerPieceLocation=new Point(15,433);
-	}
-	public Point getLocation(){
-		return playerPieceLocation;
-	}
-	public void setLocation(Point p){
-		playerPieceLocation=p;
+	private JFrame frame;
+	private JLabel label;
+	private JLabel displayScore;
+	private JButton button1;
+	private JButton button2;
+	private JLabel backGround;
+	private int p1score;
+	private JLabel player1Piece;
+	private JLabel player2Piece;
+	private Player p1;
+	private Player p2;
+	private int p2Score;
+	private JLabel displayPlayer2Score;
+	private JLabel whoWon;
+	
+	public Board(){
+		//create frame
+		frame = new JFrame("Snake and Ladder");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+		
+		p1score=0;
+		
+		//create players
+		p1=new Player();
+		p2=new Player();
+
+		label = new JLabel("Player 1 roll the dice");
+		displayScore= new JLabel("Player 1's score: ");
+		displayPlayer2Score=new JLabel("Player2's score: ");
+		button1 = new JButton("Player 1's dice");
+		button1.addActionListener(this);
+		whoWon=new JLabel("");
+		backGround=new JLabel();	
+		
+		button2=new JButton("Player 2's dice");
+		button2.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0){
+				if (!(((int)(p1.getLocation()).getX()==15 && (int)(p1.getLocation().getY())==19))&&
+						!((int)(p2.getLocation().getX())==15 && (int)(p2.getLocation().getY())==19)){
+					p2Score=(int)(Math.random()*6+1);
+					movePlayer(p2, p2Score);
+					label.setText("Player 1 roll the dice!");
+					displayPlayer2Score.setText("Player 2's score: "+p2Score);
+					player2Piece.setLocation(new Point((int)(p2.getLocation()).getX(),(int)(p2.getLocation()).getY()));
+					player2Piece.setOpaque(true);
+					frame.setVisible(true);
+					
+					if (((int)(p2.getLocation()).getX()==15 && (int)(p2.getLocation().getY())==19)){
+						whoWon.setText("Player 2 won!!!");
+					}
+				}
+				
+			}
+		});
+		
+		//set the board
+		backGround.setIcon(new ImageIcon("C:\\Users\\Owner\\Desktop\\Delete after using\\background.jpg"));
+		backGround.setPreferredSize(new Dimension(445,460));
+		backGround.addMouseListener(this);
+		backGround.addMouseMotionListener(this);
+		backGround.setBounds(0,0,445,460);
+		backGround.setOpaque(true);
+		
+		//set the player 1 piece
+		player1Piece = new JLabel();
+		player1Piece.setBackground(Color.RED);
+		player1Piece.setSize(15,15);
+		player1Piece.setLocation(new Point(15,433));
+		player1Piece.setOpaque(true);
+		backGround.add(player1Piece);
+		
+		//set the player 2 piece
+		player2Piece = new JLabel();
+		player2Piece.setBackground(Color.BLUE);
+		player2Piece.setSize(15,15);
+		player2Piece.setLocation(new Point(15,433));
+		player2Piece.setOpaque(true);
+		backGround.add(player2Piece);
+		
+		//layout
+		JPanel northEast=new JPanel(new GridLayout(4,1));
+		northEast.add(label);
+		northEast.add(button1);
+		northEast.add(displayScore);
+		northEast.add(whoWon);
+		
+		JPanel farEast=new JPanel(new GridLayout(2,1));
+		//farEast.add(new JLabel(""));
+		farEast.add(button2);
+		farEast.add(displayPlayer2Score);
+		
+		
+		JPanel west = new JPanel(new GridLayout(0, 1));
+		west.add(backGround);
+		
+		JPanel east=new JPanel(new FlowLayout());
+		east.add(northEast);
+		east.add(farEast);
+		
+		// overall frame
+		frame.add(west, BorderLayout.WEST);
+		frame.add(east, BorderLayout.EAST);
+		
+		frame.pack();
+		frame.setVisible(true);
 	}
 
+	public void actionPerformed(ActionEvent event) {
+		if (!(((int)(p1.getLocation()).getX()==15 && (int)(p1.getLocation().getY())==19))&&
+				!((int)(p2.getLocation().getX())==15 && (int)(p2.getLocation().getY())==19)){
+			p1score=(int)(Math.random()*6+1);
+			displayScore.setText("Player 1's Score: "+p1score);;
+			label.setText("Player 2 roll the dice!");
+			movePlayer(p1, p1score);
+			player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+			player1Piece.setOpaque(true);
+			frame.setVisible(true);
+			
+			if (((int)(p1.getLocation()).getX()==15 && (int)(p1.getLocation().getY())==19)){
+				whoWon.setText("Player 1 won!!!");
+			}
+		}
+	}
+	
+	public void movePlayer(Player p, int numOfMoves){
+		while(numOfMoves!=0){
+			while (((int)(p.getLocation()).getX())+45<=420 && isRight(p) && numOfMoves>0){
+				p.setLocation(new Point ((int)(p.getLocation()).getX()+45, (int)(p.getLocation()).getY()));
+				//player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+				numOfMoves--;
+			}
+			if (((int)(p.getLocation()).getX()+45>420 && isRight(p) && (int)(p.getLocation()).getY()>19 && numOfMoves>0)){
+				p.setLocation(new Point ((int)(p.getLocation()).getX() , (int)(p.getLocation()).getY()-46));
+				//player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+				numOfMoves--;
+			}
+			while (((int)(p.getLocation()).getX())-45>=15 && !isRight(p) && numOfMoves>0){
+				p.setLocation(new Point ((int)(p.getLocation()).getX()-45, (int)(p.getLocation()).getY()));
+				//player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+				numOfMoves--;
+			}
+			if (((int)(p.getLocation()).getX()-45<15 && !isRight(p) && (int)(p.getLocation()).getY()>19 && numOfMoves>0)){
+				p.setLocation(new Point ((int)(p.getLocation()).getX() , (int)(p.getLocation()).getY()-46));
+				//player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+				numOfMoves--;
+			}
+			while (((int)(p.getLocation()).getX())-45<15 && ((int)(p.getLocation()).getY())==19 &&numOfMoves>0){
+				p.setLocation(new Point ((int)(p.getLocation()).getX()+45, (int)(p.getLocation()).getY()));
+				//player1Piece.setLocation(new Point((int)(p1.getLocation()).getX(),(int)(p1.getLocation()).getY()));
+			}
+		}
+		movePlayerUp(p);
+		movePlayerDown(p);
+		numOfMoves=0;
+	}
+	public boolean isRight(Player p){
+		int location=(int) (int)(p.getLocation()).getY();
+		if (location==433 || location==341 || location==249 || location==157 || location== 65){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	public void movePlayerUp(Player p){
+		if ((int)(p.getLocation()).getX()==330&&(int)(p.getLocation()).getY()==433){
+			p.setLocation(new Point(420,295));
+		}
+		if ((int)(p.getLocation()).getX()==240&&(int)(p.getLocation()).getY()==387){
+			p.setLocation(new Point(150,19));
+		}
+		if ((int)(p.getLocation()).getX()==60&&(int)(p.getLocation()).getY()==249){
+			p.setLocation(new Point(15,65));
+		}
+		if ((int)(p.getLocation()).getX()==240&&(int)(p.getLocation()).getY()==157){
+			p.setLocation(new Point(285,65));
+		}
+	}
+	//moves the player down if there is a snake
+	public void movePlayerDown(Player p){
+		if ((int)(p.getLocation()).getX()==150&&(int)(int)(p.getLocation()).getY()==341){
+			p.setLocation(new Point(15,433));
+		}
+		if ((int)(p.getLocation()).getX()==240&&(int)(int)(p.getLocation()).getY()==203){
+			p.setLocation(new Point(330,387));
+		}
+		if ((int)(p.getLocation()).getX()==420&&(int)(int)(p.getLocation()).getY()==111){
+			p.setLocation(new Point(370,341));
+		}
+		if ((int)(p.getLocation()).getX()==330&&(int)(int)(p.getLocation()).getY()==65){
+			p.setLocation(new Point(285,157));
+		}
+		if ((int)(p.getLocation()).getX()==60&&(int)(int)(p.getLocation()).getY()==19){
+			p.setLocation(new Point(240,433));
+		}
+	}
 }
